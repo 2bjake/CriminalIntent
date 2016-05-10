@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by jakefost on 5/10/16.
@@ -21,6 +22,8 @@ import java.util.List;
 public class CrimeListFragment extends Fragment {
     private RecyclerView mCrimeRecyclerView;
     private CrimeAdapter mAdapter;
+
+    private UUID mLastCrimeIdClicked;
 
     private class CrimeHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
@@ -50,6 +53,7 @@ public class CrimeListFragment extends Fragment {
         @Override
         public void onClick(View v) {
             Intent intent = CrimeActivity.newIntent(getActivity(), mCrime.getId());
+            mLastCrimeIdClicked = mCrime.getId();
             startActivity(intent);
         }
     }
@@ -108,7 +112,14 @@ public class CrimeListFragment extends Fragment {
             mAdapter = new CrimeAdapter(crimes);
             mCrimeRecyclerView.setAdapter(mAdapter);
         } else {
-            mAdapter.notifyDataSetChanged();
+            if (mLastCrimeIdClicked != null) {
+                for (int i = 0; i < crimes.size(); i++) {
+                    if (crimes.get(i).getId().equals(mLastCrimeIdClicked)) {
+                        mAdapter.notifyItemChanged(i);
+                        break;
+                    }
+                }
+            }
         }
 
         mAdapter = new CrimeAdapter(crimes);
