@@ -1,3 +1,4 @@
 * format date button so that it only shows date
 * make time button show time
 * make the time picker set the time (without messing up the date)
+* add time button to tablet
