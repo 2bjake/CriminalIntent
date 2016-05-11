@@ -90,6 +90,10 @@ public class CrimeLab {
         return new File(externalFilesDir, crime.getPhotoFilename());
     }
 
+    public File getPhotoFile(UUID id) {
+        return getPhotoFile(getCrime(id));
+    }
+
     public void updateCrime(Crime crime) {
         String uuidString = crime.getId().toString();
         ContentValues values = getContentValues(crime);
