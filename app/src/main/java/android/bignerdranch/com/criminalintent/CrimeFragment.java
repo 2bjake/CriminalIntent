@@ -27,11 +27,13 @@ public class CrimeFragment extends Fragment {
 
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String DIALOG_DATE = "DialogDate";
+    private static final String DIALOG_TIME = "DialogTime";
     private static final int REQUEST_DATE = 0;
 
     private Crime mCrime;
     private EditText mTitleField;
     private Button mDateButton;
+    private Button mTimeButton;
     private CheckBox mSolvedCheckBox;
     
     public static CrimeFragment newInstance(UUID crimeId) {
@@ -84,6 +86,17 @@ public class CrimeFragment extends Fragment {
                         .newInstance(mCrime.getDate());
                 dialog.setTargetFragment(CrimeFragment.this, REQUEST_DATE);
                 dialog.show(manager, DIALOG_DATE);
+            }
+        });
+
+        mTimeButton = (Button)v.findViewById(R.id.crime_time);
+        mTimeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager manager = getFragmentManager();
+                TimerPickerFragment dialog = TimerPickerFragment
+                        .newInstance(mCrime.getDate());
+                dialog.show(manager, DIALOG_TIME);
             }
         });
 
