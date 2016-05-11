@@ -182,5 +182,18 @@ public class CrimeListFragment extends Fragment {
         }
 
         updateSubtitle();
+
+        View rootView = getView();
+        if (rootView != null) {
+            View noCrimesMsg = rootView.findViewById(R.id.no_crimes_layout);
+            View crimesList = rootView.findViewById(R.id.crime_recycler_view);
+            if (crimes.isEmpty()) {
+                noCrimesMsg.setVisibility(View.VISIBLE);
+                crimesList.setVisibility(View.INVISIBLE);
+            } else {
+                noCrimesMsg.setVisibility(View.INVISIBLE);
+                crimesList.setVisibility(View.VISIBLE);
+            }
+        }
     }
 }
