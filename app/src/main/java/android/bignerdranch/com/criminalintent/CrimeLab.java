@@ -111,6 +111,11 @@ public class CrimeLab {
     }
 
     public void deleteCrime(UUID id) {
-        throw new RuntimeException(); //TODO
+        String uuidString = id.toString();
+        mDatabase.delete(
+                CrimeTable.NAME,
+                CrimeTable.Cols.UUID + " = ?",
+                new String[] { uuidString });
+
     }
 }
