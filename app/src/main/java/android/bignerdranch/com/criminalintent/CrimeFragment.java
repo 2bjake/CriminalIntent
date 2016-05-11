@@ -17,6 +17,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
@@ -29,6 +30,7 @@ public class CrimeFragment extends Fragment {
     private static final String DIALOG_DATE = "DialogDate";
     private static final String DIALOG_TIME = "DialogTime";
     private static final int REQUEST_DATE = 0;
+    private static final int REQUEST_TIME = 1;
 
     private Crime mCrime;
     private EditText mTitleField;
@@ -77,7 +79,7 @@ public class CrimeFragment extends Fragment {
         });
 
         mDateButton = (Button)v.findViewById(R.id.crime_date);
-        updateDate();
+        updateDateButton();
         mDateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -113,14 +115,34 @@ public class CrimeFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_DATE) {
-            Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
-            mCrime.setDate(date);
-            updateDate();
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == REQUEST_DATE) {
+                Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
+                mCrime.setDate(copyDatePortion(date, mCrime.getDate()));
+                updateDateButton();
+            } else if (requestCode == REQUEST_TIME) {
+                //TODO
+            }
         }
     }
 
-    private void updateDate() {
+    private void updateDateButton() {
         mDateButton.setText(mCrime.getDate().toString());
+    }
+
+    private Date copyDatePortion(Date src, Date dest) {
+
+        Calendar srcCal = Calendar.getInstance();
+        srcCal.setTime(src);
+        int year = srcCal.get(Calendar.YEAR);
+        int month = srcCal.get(Calendar.MONTH);
+        int day = srcCal.get(Calendar.DAY_OF_MONTH);
+
+        Calendar destCal = Calendar.getInstance();
+        destCal.setTime(dest);
+        destCal.set(Calendar.YEAR, year);
+        destCal.set(Calendar.MONTH, month);
+        destCal.set(Calendar.DAY_OF_MONTH, day);
+        return destCal.getTime();
     }
 }
