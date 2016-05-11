@@ -109,4 +109,8 @@ public class CrimeLab {
 
         return new CrimeCursorWrapper(cursor);
     }
+
+    public void deleteCrime(UUID id) {
+        throw new RuntimeException(); //TODO
+    }
 }
