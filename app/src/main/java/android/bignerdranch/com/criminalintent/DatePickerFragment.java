@@ -55,13 +55,13 @@ public class DatePickerFragment extends DialogFragment {
                                 int month = mDatePicker.getMonth();
                                 int day = mDatePicker.getDayOfMonth();
                                 Date date = new GregorianCalendar(year, month, day).getTime();
-                                sendResult(Activity.RESULT_OK, date);
+                                sendResult(date);
                             }
                         }
                 ).create();
     }
 
-    private void sendResult(int resultCode, Date date) {
+    private void sendResult(Date date) {
         if (getTargetFragment() == null) {
             return;
         }
@@ -70,7 +70,7 @@ public class DatePickerFragment extends DialogFragment {
         intent.putExtra(EXTRA_DATE, date);
 
         getTargetFragment()
-                .onActivityResult(getTargetRequestCode(), resultCode, intent);
+                .onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
     }
 
     public static DatePickerFragment newInstance(Date date) {

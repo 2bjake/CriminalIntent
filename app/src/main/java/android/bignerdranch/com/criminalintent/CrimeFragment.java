@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +17,9 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.TimePicker;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
@@ -27,11 +30,14 @@ public class CrimeFragment extends Fragment {
 
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String DIALOG_DATE = "DialogDate";
+    private static final String DIALOG_TIME = "DialogTime";
     private static final int REQUEST_DATE = 0;
+    private static final int REQUEST_TIME = 1;
 
     private Crime mCrime;
     private EditText mTitleField;
     private Button mDateButton;
+    private Button mTimeButton;
     private CheckBox mSolvedCheckBox;
     
     public static CrimeFragment newInstance(UUID crimeId) {
@@ -75,7 +81,7 @@ public class CrimeFragment extends Fragment {
         });
 
         mDateButton = (Button)v.findViewById(R.id.crime_date);
-        updateDate();
+        updateDateButton();
         mDateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -84,6 +90,19 @@ public class CrimeFragment extends Fragment {
                         .newInstance(mCrime.getDate());
                 dialog.setTargetFragment(CrimeFragment.this, REQUEST_DATE);
                 dialog.show(manager, DIALOG_DATE);
+            }
+        });
+
+        mTimeButton = (Button)v.findViewById(R.id.crime_time);
+        updateTimeButton();
+        mTimeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager manager = getFragmentManager();
+                TimePickerFragment dialog = TimePickerFragment
+                        .newInstance(mCrime.getDate());
+                dialog.setTargetFragment(CrimeFragment.this, REQUEST_TIME);
+                dialog.show(manager, DIALOG_TIME);
             }
         });
 
@@ -100,14 +119,53 @@ public class CrimeFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_DATE) {
-            Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
-            mCrime.setDate(date);
-            updateDate();
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == REQUEST_DATE) {
+                Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
+                mCrime.setDate(copyDatePortion(date, mCrime.getDate()));
+                updateDateButton();
+            } else if (requestCode == REQUEST_TIME) {
+                int hour = data.getIntExtra(TimePickerFragment.EXTRA_HOUR, -1);
+                int minute = data.getIntExtra(TimePickerFragment.EXTRA_MINUTE, -1);
+                if (hour != -1 && minute != -1) {
+                    mCrime.setDate(setTimePortion(hour, minute, mCrime.getDate()));
+                    updateTimeButton();
+                }
+            }
         }
     }
 
-    private void updateDate() {
-        mDateButton.setText(mCrime.getDate().toString());
+    private void updateDateButton() {
+        String dateStr = DateFormat.getLongDateFormat(getActivity()).format(mCrime.getDate());
+        mDateButton.setText(dateStr);
+    }
+
+    private void updateTimeButton() {
+        String timeStr = DateFormat.getTimeFormat(getActivity()).format(mCrime.getDate());
+        mTimeButton.setText(timeStr);
+    }
+
+    private Date copyDatePortion(Date src, Date dest) {
+
+        Calendar srcCal = Calendar.getInstance();
+        srcCal.setTime(src);
+        int year = srcCal.get(Calendar.YEAR);
+        int month = srcCal.get(Calendar.MONTH);
+        int day = srcCal.get(Calendar.DAY_OF_MONTH);
+
+        Calendar destCal = Calendar.getInstance();
+        destCal.setTime(dest);
+        destCal.set(Calendar.YEAR, year);
+        destCal.set(Calendar.MONTH, month);
+        destCal.set(Calendar.DAY_OF_MONTH, day);
+        return destCal.getTime();
+    }
+
+    private Date setTimePortion(int hour, int minute, Date dest) {
+        Calendar destCal = Calendar.getInstance();
+        destCal.setTime(dest);
+        destCal.set(Calendar.HOUR_OF_DAY, hour);
+        destCal.set(Calendar.MINUTE, minute);
+        return destCal.getTime();
     }
 }
