@@ -31,8 +31,6 @@ public class CrimeListFragment extends Fragment {
     private boolean mSubtitleVisible;
     private Button mCreateButton;
 
-    private UUID mLastCrimeIdClicked;
-
     private class CrimeHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
 
@@ -61,7 +59,6 @@ public class CrimeListFragment extends Fragment {
         @Override
         public void onClick(View v) {
             Intent intent = CrimePagerActivity.newIntent(getActivity(), mCrime.getId());
-            mLastCrimeIdClicked = mCrime.getId();
             startActivity(intent);
         }
     }
@@ -90,6 +87,10 @@ public class CrimeListFragment extends Fragment {
         @Override
         public int getItemCount() {
             return mCrimes.size();
+        }
+
+        public  void setCrimes(List<Crime> crimes) {
+            mCrimes = crimes;
         }
     }
 
@@ -162,7 +163,6 @@ public class CrimeListFragment extends Fragment {
     private void onCreateCrime() {
         Crime crime = new Crime();
         CrimeLab.get(getActivity()).addCrime(crime);
-        mLastCrimeIdClicked = null;
         Intent intent = CrimePagerActivity
                 .newIntent(getActivity(), crime.getId());
         startActivity(intent);
@@ -195,22 +195,8 @@ public class CrimeListFragment extends Fragment {
             mAdapter = new CrimeAdapter(crimes);
             mCrimeRecyclerView.setAdapter(mAdapter);
         } else {
-            if (mLastCrimeIdClicked != null) {
-                boolean crimeFound = false;
-                for (int i = 0; i < crimes.size() && !crimeFound; i++) {
-                    if (crimes.get(i).getId().equals(mLastCrimeIdClicked)) {
-                        mAdapter.notifyItemChanged(i);
-                        crimeFound = true;
-                    }
-                }
-
-                if(!crimeFound) {
-                    mAdapter.notifyDataSetChanged();
-                }
-
-            } else {
-                mAdapter.notifyDataSetChanged();
-            }
+            mAdapter.setCrimes(crimes);
+            mAdapter.notifyDataSetChanged();
         }
 
         updateSubtitle();
