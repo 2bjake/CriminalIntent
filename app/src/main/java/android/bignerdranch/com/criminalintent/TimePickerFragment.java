@@ -1,7 +1,10 @@
 package android.bignerdranch.com.criminalintent;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -11,13 +14,19 @@ import android.widget.TimePicker;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * Created by jakefost on 5/11/16.
  */
-public class TimerPickerFragment extends DialogFragment {
+public class TimePickerFragment extends DialogFragment {
 
-    public static final String ARG_DATE = "dated";
+    public static final String ARG_DATE = "date";
+    public static final String EXTRA_HOUR =
+            "com.bignerdranch.android.criminalintent.hour";
+    public static final String EXTRA_MINUTE =
+            "com.bignerdranch.android.criminalintent.minute";
+
 
     private TimePicker mTimePicker;
 
@@ -45,24 +54,38 @@ public class TimerPickerFragment extends DialogFragment {
         return new AlertDialog.Builder(getActivity())
                 .setView(v)
                 .setTitle(R.string.time_picker_title)
-                .setPositiveButton(android.R.string.ok, null/*
+                .setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                int year = mDatePicker.getYear();
-                                int month = mDatePicker.getMonth();
-                                int day = mDatePicker.getDayOfMonth();
-                                Date date = new GregorianCalendar(year, month, day).getTime();
-                                sendResult(Activity.RESULT_OK, date);
+                                Date date = new Date();
+                                if (Build.VERSION.SDK_INT < 23) {
+                                    sendResult(mTimePicker.getCurrentHour(), mTimePicker.getCurrentMinute());
+                                } else {
+                                    sendResult(mTimePicker.getHour(), mTimePicker.getMinute());
+                                }
                             }
                         }
-                */).create();
+                ).create();
     }
 
-    public static TimerPickerFragment newInstance(Date date) {
+    private void sendResult(int hour, int minute) {
+        if (getTargetFragment() == null) {
+            return;
+        }
+
+        Intent intent = new Intent();
+        intent.putExtra(EXTRA_HOUR, hour);
+        intent.putExtra(EXTRA_MINUTE, minute);
+
+        getTargetFragment()
+                .onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+    }
+
+    public static TimePickerFragment newInstance(Date date) {
         Bundle args = new Bundle();
         args.putSerializable(ARG_DATE, date);
-        TimerPickerFragment fragment = new TimerPickerFragment();
+        TimePickerFragment fragment = new TimePickerFragment();
         fragment.setArguments(args);
         return fragment;
     }

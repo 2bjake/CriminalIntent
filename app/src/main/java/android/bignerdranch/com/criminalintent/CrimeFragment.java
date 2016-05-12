@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.TimePicker;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -92,12 +94,14 @@ public class CrimeFragment extends Fragment {
         });
 
         mTimeButton = (Button)v.findViewById(R.id.crime_time);
+        updateTimeButton();
         mTimeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FragmentManager manager = getFragmentManager();
-                TimerPickerFragment dialog = TimerPickerFragment
+                TimePickerFragment dialog = TimePickerFragment
                         .newInstance(mCrime.getDate());
+                dialog.setTargetFragment(CrimeFragment.this, REQUEST_TIME);
                 dialog.show(manager, DIALOG_TIME);
             }
         });
@@ -121,13 +125,24 @@ public class CrimeFragment extends Fragment {
                 mCrime.setDate(copyDatePortion(date, mCrime.getDate()));
                 updateDateButton();
             } else if (requestCode == REQUEST_TIME) {
-                //TODO
+                int hour = data.getIntExtra(TimePickerFragment.EXTRA_HOUR, -1);
+                int minute = data.getIntExtra(TimePickerFragment.EXTRA_MINUTE, -1);
+                if (hour != -1 && minute != -1) {
+                    mCrime.setDate(setTimePortion(hour, minute, mCrime.getDate()));
+                    updateTimeButton();
+                }
             }
         }
     }
 
     private void updateDateButton() {
-        mDateButton.setText(mCrime.getDate().toString());
+        String dateStr = DateFormat.getLongDateFormat(getActivity()).format(mCrime.getDate());
+        mDateButton.setText(dateStr);
+    }
+
+    private void updateTimeButton() {
+        String timeStr = DateFormat.getTimeFormat(getActivity()).format(mCrime.getDate());
+        mTimeButton.setText(timeStr);
     }
 
     private Date copyDatePortion(Date src, Date dest) {
@@ -143,6 +158,14 @@ public class CrimeFragment extends Fragment {
         destCal.set(Calendar.YEAR, year);
         destCal.set(Calendar.MONTH, month);
         destCal.set(Calendar.DAY_OF_MONTH, day);
+        return destCal.getTime();
+    }
+
+    private Date setTimePortion(int hour, int minute, Date dest) {
+        Calendar destCal = Calendar.getInstance();
+        destCal.setTime(dest);
+        destCal.set(Calendar.HOUR_OF_DAY, hour);
+        destCal.set(Calendar.MINUTE, minute);
         return destCal.getTime();
     }
 }
